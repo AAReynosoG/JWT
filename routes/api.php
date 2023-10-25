@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,8 +21,10 @@ Route::get('/test', function() {
         ], 200);
 });
 
-Route::post('/register', [UsuarioController::class, 'register']); /**Ruta para registrar los usuarios */
+Route::post('/register', [UserController::class, 'register']); /**Ruta para registrar los usuarios */
 Route::get('/activate-account/{userID}');/**Ruta para generar token */
-Route::post('/login');/**Ruta para el login */
+Route::post('/login', [UserController::class, 'login'])->name('login');/**Ruta para el login */
 Route::delete('/logout');/**Ruta para deshabilitar el token */
-Route::get('/user/{userID}');/**Ruta para traer la informacion del dueño del token */
+Route::get('/me', [UserController::class, 'me']);/**Ruta para traer la informacion del dueño del token */
+
+
