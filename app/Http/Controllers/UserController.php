@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Iilluminate\Support\Facades\Auth; 
+use Iilluminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AcountActivation;
 use App\Models\User;
 
 class UserController extends Controller
@@ -14,7 +16,7 @@ class UserController extends Controller
     public function __construct(){//Aqui se especifica que metodos necesitan autenticacion
         $this->middleware('auth:api', ['except' => ['register', 'login']]); //Aqui se especifica que metodos no necesitan autenticacion
     }
-    
+
     public function login(){
         $credentials = request(['email', 'password']);//Aqui se obtienen las credenciales del usuario
 
@@ -52,9 +54,11 @@ class UserController extends Controller
         $user->save();
         $user->makeHidden('password');
 
+        Mail::to($user->email)->send(new AcountActivation($user));//Aqui se envia el correo de activacion
+
         return response()->json([
             "msg" => "Usuario registrado exitosamente",
-            "data" => $user        
+            "data" => $user
         ], 201);
     }
 
@@ -67,13 +71,13 @@ class UserController extends Controller
     public function logout(){
         auth()->logout(true);//Aqui se deshabilita el token
 
-        return response()->json([  
+        return response()->json([
             'msg' => 'Sesion cerrada exitosamente'
         ]);
     }
 
 
-    public function refresh(){
+    public function refresh(){//Aqui se refresca el token
         return $this->respondWithToken(auth()->refresh());//Aqui se refresca el token
     }
 
@@ -85,5 +89,5 @@ class UserController extends Controller
             'expires_in' => auth()->factory()->getTTL() * 60//Aqui se especifica el tiempo de expiracion del token
         ]);
     }
-   
+
 }
